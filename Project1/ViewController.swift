@@ -27,6 +27,7 @@ class ViewController: UITableViewController {
                 pictures.append(item)
             }
         }
+        pictures.sort()
         print(pictures)
     }
 
@@ -44,6 +45,8 @@ class ViewController: UITableViewController {
         if let vc = storyboard?.instantiateViewController(identifier: "Detail") as? DetailViewController {
             
             vc.selectedImage = pictures[indexPath.row]
+            vc.selectedPictureNumber = indexPath.row + 1
+            vc.totalPictures = pictures.count + 1
             navigationController?.pushViewController(vc, animated: true)
         }
     }
