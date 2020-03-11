@@ -27,6 +27,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     var balls = [String]()
+    var numberOfTries = 0
     
     override func didMove(to view: SKView) {
         let background = SKSpriteNode(imageNamed: "background")
@@ -59,18 +60,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         makeBouncer(at: CGPoint(x: 512, y: 0))
         makeBouncer(at: CGPoint(x: 760, y: 0))
         makeBouncer(at: CGPoint(x: 1024, y: 0))
+
+        createBallAssetArray()
+        print(balls)
     }
 
     func createBallAssetArray() {
         let fm = FileManager.default
         let path = Bundle.main.resourcePath!
         let items = try! fm.contentsOfDirectory(atPath: path)
-
         for item in items {
             if item.contains("ball") {
                 balls.append(item)
             }
         }
+        print("createBallAssetArray Called")
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,11 +97,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 box.physicsBody?.isDynamic = false
                 addChild(box)
             } else {
-                let ball = SKSpriteNode(imageNamed: "ballRed")
+                let ball = SKSpriteNode(imageNamed: balls.randomElement() ?? "ballRed")
                 ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0)
                 ball.physicsBody?.restitution = 0.4
                 ball.physicsBody?.contactTestBitMask = ball.physicsBody?.collisionBitMask ?? 0
-                ball.position = location
+                ball.position = CGPoint(x: location.x, y: 760)
                 ball.name = "ball"
                 addChild(ball)
             }
@@ -110,6 +114,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bouncer.physicsBody = SKPhysicsBody(circleOfRadius: bouncer.size.width / 2.0)
         bouncer.physicsBody?.isDynamic = false
         addChild(bouncer)
+        print("makeBouncer called")
     }
 
     func makeSlot(at position: CGPoint, isGood: Bool) {
@@ -138,6 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let spin = SKAction.rotate(byAngle: .pi, duration: 10)
         let spinForever = SKAction.repeatForever(spin)
         slotGlow.run(spinForever)
+        print("makeSlot Called")
     }
 
     func collision(between ball: SKNode, object: SKNode) {
@@ -167,5 +173,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if nodeB.name == "ball" {
             collision(between: nodeB, object: nodeA)
         }
+        print("didBegin Called")
     }
 }
