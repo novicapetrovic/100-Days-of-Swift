@@ -1,11 +1,3 @@
-//
-//  ViewController.swift
-//  Project16
-//
-//  Created by Novica Petrovic on 13/03/2020.
-//  Copyright © 2020 Novica Petrovic. All rights reserved.
-//
-
 import UIKit
 import MapKit
 
@@ -14,6 +6,7 @@ class ViewController: UIViewController, MKMapViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(changeMap))
 
         let london = Capital(title: "London", coordinate: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275), info: "Home to the 2012 Summer Olympics")
         let oslo = Capital(title: "Oslo", coordinate: CLLocationCoordinate2D(latitude: 59.95, longitude: 10.75), info: "Founded over a thousand years ago")
@@ -22,10 +15,13 @@ class ViewController: UIViewController, MKMapViewDelegate {
         let washington = Capital(title: "Washington", coordinate: CLLocationCoordinate2D(latitude: 38.895111, longitude: -77.036667), info: "Named after George himself")
 
         mapView.addAnnotations([london, oslo, paris, rome, washington])
+    }
 
+    @objc func changeMap() {
         let alert = UIAlertController(title: "How would you like to view the map?", message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "satelite", style: .default, handler: changeMapType))
-        alert.addAction(UIAlertAction(title: "hybrid", style: .default, handler: changeMapType))
+        alert.addAction(UIAlertAction(title: "Satelite", style: .default, handler: { _ in self.changeMapType(to: .satellite) }))
+        alert.addAction(UIAlertAction(title: "Hybrid", style: .default, handler: { _ in self.changeMapType(to: .hybrid) }))
+        alert.addAction(UIAlertAction(title: "Standard", style: .default, handler: { _ in self.changeMapType(to: .standard) }))
         present(alert, animated: true)
     }
 
@@ -61,9 +57,7 @@ class ViewController: UIViewController, MKMapViewDelegate {
         present(alert, animated: true)
     }
 
-    func changeMapType(action: UIAlertAction) {
-        guard let actionTitle = action.title else { return }
-        let actionTitleMKMapType = MKMapType.actionTitle
-        mapView.mapType = actionTitleMKMapType
+    func changeMapType(to mapType: MKMapType) {
+        mapView.mapType = mapType
     }
 }
