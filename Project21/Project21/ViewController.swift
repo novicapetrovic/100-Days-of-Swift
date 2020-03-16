@@ -15,49 +15,33 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         super.viewDidLoad()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Register", style: .plain, target: self, action: #selector(registerLocal))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Schedule", style: .plain, target: self, action: #selector(scheduleLocal))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Schedule", style: .plain, target: self, action: #selector(notificationDecider))
     }
 
-    @objc func registerLocal() {
-        let center = UNUserNotificationCenter.current()
+    @objc func notificationDecider() {
+        let current = UNUserNotificationCenter.current()
 
-        center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
-            if granted {
-                print("yay!")
-            } else {
-                print("D'oh!")
+        current.getNotificationSettings(completionHandler: { (settings) in
+            if settings.authorizationStatus == .notDetermined {
+                // Notification permission has not been asked yet, go for it!
+
+                self.registerLocal()
+
+            } else if settings.authorizationStatus == .denied {
+                // Notification permission was previously denied, go to settings & privacy to re-enable
+
+                let alert = UIAlertController(title: "Permission Required", message: "Go to settings & privacy to enable push notifications for Project21", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+
+            } else if settings.authorizationStatus == .authorized {
+                // Notification permission was already granted
+
+                self.scheduleLocal()
+
             }
-        }
-    }
+        })
 
-    @objc func scheduleLocal(remindLater: Bool) {
-        registerCategories()
-        let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-
-        let content = UNMutableNotificationContent()
-        content.title = "Late wake up call"
-        content.body = "The early bird catches the worm, but the second mouse gets the cheese."
-        content.categoryIdentifier = "alarm"
-        content.userInfo = ["customData": "fizzbuzz"]
-        content.sound = .default
-
-        var dateComponents = DateComponents()
-        var trigger: UNNotificationTrigger
-
-        if remindLater {
-            let timeInterval = 86400
-//            trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeInterval), repeats: false)
-            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)   // for testing
-        } else {
-            dateComponents.hour = 10
-            dateComponents.minute = 30
-//            trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)    // for testing
-        }
-
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        center.add(request)
     }
 
     func registerCategories() {
@@ -65,7 +49,7 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         center.delegate = self
 
         let show = UNNotificationAction(identifier: "show", title: "Tell me more...", options: .foreground)
-        let remindLater = UNNotificationAction(identifier: "remindLater", title: "Remind me later", options: .destructive)
+        let remindLater = UNNotificationAction(identifier: "remindLater", title: "Remind me later")
         let category = UNNotificationCategory(identifier: "alarm", actions: [show, remindLater], intentIdentifiers: [], options: [])
 
         center.setNotificationCategories([category])
@@ -98,5 +82,48 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
 
         completionHandler()
     }
+
+    @objc func registerLocal() {
+        let current = UNUserNotificationCenter.current()
+
+        current.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+            if granted {
+                print("yay!")
+            } else {
+                print("D'oh!")
+            }
+        }
+    }
+
+    func scheduleLocal(remindLater: Bool = false) {
+
+            registerCategories()
+            let center = UNUserNotificationCenter.current()
+            center.removeAllPendingNotificationRequests()
+
+            let content = UNMutableNotificationContent()
+            content.title = "Late wake up call"
+            content.body = "The early bird catches the worm, but the second mouse gets the cheese."
+            content.categoryIdentifier = "alarm"
+            content.userInfo = ["customData": "fizzbuzz"]
+            content.sound = .default
+
+            var dateComponents = DateComponents()
+            var trigger: UNNotificationTrigger
+
+            if remindLater {
+                let timeInterval = 86400
+    //            trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeInterval), repeats: false)
+                trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)   // for testing
+            } else {
+                dateComponents.hour = 10
+                dateComponents.minute = 30
+    //            trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)    // for testing
+            }
+
+            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+            center.add(request)
+        }
 }
 

@@ -20,6 +20,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerLocal()
 
         countries += ["estonia", "france", "germany", "ireland", "italy", "monaco", "nigeria", "poland", "russia", "spain", "uk", "us"]
 
@@ -32,6 +33,18 @@ class ViewController: UIViewController {
         button3.layer.borderColor = UIColor.lightGray.cgColor
 
         askQuestion()
+    }
+
+    func registerLocal() {
+        let center = UNUserNotificationCenter.current()
+
+        center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+            if granted {
+                print("yay!")
+            } else {
+                print("D'oh!")
+            }
+        }
     }
 
     func askQuestion(action: UIAlertAction! = nil) {
