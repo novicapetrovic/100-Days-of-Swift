@@ -47,13 +47,13 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
 
         if remindLater {
             let timeInterval = 86400
-            trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeInterval), repeats: false)
-            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+//            trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeInterval), repeats: false)
+            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)   // for testing
         } else {
             dateComponents.hour = 10
             dateComponents.minute = 30
 //            trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)    // for testing
         }
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
